@@ -1,0 +1,366 @@
+
+#importation des librairies :
+
+from jupyter_dash import JupyterDash
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output
+import pandas as pd
+import plotly.express as px
+from datetime import date
+import numpy as np
+
+
+
+
+#Acquisition de la base :
+
+world = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
+world
+
+
+
+#Les differents colonnes de la bases:
+
+world.columns
+
+
+
+
+
+
+
+
+#Extraction des données selon les pays:
+
+fr = world[world['location']=='France']
+fr
+
+
+
+uk= world[world['location']=='United Kingdom']
+uk
+
+
+
+
+usa = world[world['location']=='United States']
+usa
+
+
+
+can = world[world['location'] =='Canada']
+can
+
+
+
+
+ind = world[world['location'] =='India']
+ind
+
+
+
+
+
+
+
+
+
+#Mise en place de la colonne date comme index puis pour chaque mois remplacer l'ensemble des valeurs par une seule qui estr la moyenne :
+
+data1=uk
+data1.set_index('date', inplace=True)
+data1.index = pd.to_datetime(data1.index)
+data_uk=data1.resample('1M').mean()
+data_uk
+
+data_uk_m=data_uk.reset_index()
+data2=usa
+data2.set_index('date', inplace=True)
+data2.index = pd.to_datetime(data2.index)
+data_usa=data2.resample('1M').mean()
+data_usa
+
+data_usa_m=data_usa.reset_index()
+data3=can
+data3.set_index('date', inplace=True)
+data3.index = pd.to_datetime(data3.index)
+data_can=data3.resample('1M').mean()
+data_can
+
+data_can_m=data_can.reset_index()
+data4=ind
+data4.set_index('date', inplace=True)
+data4.index = pd.to_datetime(data4.index)
+data_ind=data4.resample('1M').mean()
+data_ind
+
+data_ind_m=data_ind.reset_index()
+
+
+
+
+
+
+
+#Reinitialisation des donnees :
+
+fr = world[world['location']=='France']
+uk= world[world['location']=='United Kingdom']
+usa = world[world['location']=='United States']
+can = world[world['location'] =='Canada']
+ind = world[world['location'] =='India']
+
+
+
+
+
+
+
+
+
+#Creation du tableau de board:
+
+app = JupyterDash(__name__)
+
+app.layout = html.Div(children=[
+    # All elements from the top of the page
+    html.Div([
+                
+        html.H1(children='Covid 19',style={'font-weight': 'bold',
+                                           'text-align':'center',
+                                            'font-size':'30px',
+                                            'padding':'20px'}),
+        dcc.Dropdown(
+            id='my_dropdown1',
+            options=[
+                     {'label': 'United Kingdom', 'value': 1 },
+                     {'label': 'United States', 'value': 2 },
+                     {'label': 'Canada', 'value': 3 },
+                     {'label': 'India', 'value': 4 },
+                    
+            ],
+            value='1',
+            multi=False,
+            clearable=False,
+            style={"width": "100%"}
+        ),
+        dcc.Graph(
+            id='the_graph1',
+        
+        ),
+        dcc.Dropdown(
+            id='my_dropdown2',
+            options=[
+                     {'label': 'United Kingdom', 'value': 1 },
+                     {'label': 'United States', 'value': 2 },
+                     {'label': 'Canada', 'value': 3 },
+                     {'label': 'India', 'value': 4 },
+                    
+            ],
+            value='1',
+            multi=False,
+            clearable=False,
+            style={"width": "100%"}
+        ),
+        dcc.Graph(
+            id='the_graph2',
+        
+        ),
+        
+         dcc.Dropdown(
+            id='my_dropdown3',
+            options=[
+                      {'label': 'United Kingdom', 'value': 1 },
+                     {'label': 'United States', 'value': 2 },
+                     {'label': 'Canada', 'value': 3 },
+                     {'label': 'India', 'value': 4 },
+                    
+            ],
+            value='1',
+            multi=False,
+            clearable=False,
+            style={"width": "100%"}
+        ),
+        dcc.Graph(
+            id='the_graph3',
+        
+        ),
+        
+         dcc.Dropdown(
+            id='my_dropdown4',
+            options=[
+                      {'label': 'United Kingdom', 'value': 1 },
+                     {'label': 'United States', 'value': 2 },
+                     {'label': 'Canada', 'value': 3 },
+                     {'label': 'India', 'value': 4 },
+                    
+            ],
+            value='1',
+            multi=False,
+            clearable=False,
+            style={"width": "100%"}
+        ),
+        dcc.Graph(
+            id='the_graph4',
+        
+        ),
+
+        
+        
+                 dcc.Dropdown(
+            id='my_dropdown5',
+            options=[
+                     {'label': 'United Kingdom', 'value': 1 },
+                     {'label': 'United States', 'value': 2 },
+                     {'label': 'Canada', 'value': 3 },
+                     {'label': 'India', 'value': 4 },
+                    
+            ],
+            value='1',
+            multi=False,
+            clearable=False,
+            style={"width": "100%"}
+        ),
+        dcc.Graph(
+            id='the_graph5',
+        
+        ),
+       
+        
+    ])
+])
+@app.callback(
+    Output(component_id='the_graph1', component_property='figure'),
+    [Input(component_id='my_dropdown1', component_property='value')]
+)
+def update_graph(my_dropdown1):
+    if my_dropdown1 == 1:
+        dff = uk
+    elif my_dropdown1 == 2:
+        dff = usa
+    elif my_dropdown1 == 3:
+        dff = can
+    else:
+        dff = ind
+    figM1=px.line(
+            data_frame=dff,
+            x="date",
+            y="total_cases",
+            title='Courbe de la variation de nombre de cas ',
+            )
+
+    return (figM1)
+
+
+@app.callback(
+    Output(component_id='the_graph2', component_property='figure'),
+    [Input(component_id='my_dropdown2', component_property='value')]
+)
+def update_graph(my_dropdown2):
+    if my_dropdown2 == 1:
+        dff = uk
+    elif my_dropdown2 == 2:
+        dff = usa
+    elif my_dropdown2 == 3:
+        dff = can
+    else:
+        dff = ind
+    figM1=px.line(
+            data_frame=dff,
+            x="date",
+            y="total_deaths",
+            title='Courbe de la variation de nombre de décés ',
+            )
+
+    return (figM1)
+
+
+
+@app.callback(
+    Output(component_id='the_graph3', component_property='figure'),
+    [Input(component_id='my_dropdown3', component_property='value')]
+)
+def update_graph(my_dropdown3):
+    if my_dropdown3 == 1:
+        dff = uk
+    elif my_dropdown3 == 2:
+        dff = usa
+    elif my_dropdown3 == 3:
+        dff = can
+    else:
+        dff = ind
+    figM1=px.line(
+            data_frame=dff,
+            x="date",
+            y="total_vaccinations",
+            title='Courbe de la variation de nombre de vaccinations ',
+            )
+
+    return (figM1)
+
+@app.callback(
+    Output(component_id='the_graph4', component_property='figure'),
+    [Input(component_id='my_dropdown4', component_property='value')]
+)
+def update_graph(my_dropdown4):
+    if my_dropdown4 == 1:
+        dff = uk
+    elif my_dropdown4 == 2:
+        dff = usa
+    elif my_dropdown4 == 3:
+        dff = can
+    else:
+        dff = ind
+    figM1=px.line(
+            data_frame=dff,
+            x="date",
+            y="positive_rate",
+            title='Courbe de la variation de nombre des test ',
+            )
+
+    return (figM1)
+
+@app.callback(
+    Output(component_id='the_graph5', component_property='figure'),
+    [Input(component_id='my_dropdown5', component_property='value')]
+)
+def update_graph(my_dropdown5):
+    if my_dropdown5 == 1:
+        dff = data_uk_m
+    elif my_dropdown5 == 2:
+        dff = data_usa_m
+    elif my_dropdown5 == 3:
+        dff = data_can_m
+    else:
+        dff = data_ind_m
+    fig1=px.bar(
+    dff,
+    x = "date",
+    y ="new_cases",
+    title= "__________________", # the axis names
+    color_discrete_sequence=["#1E71B8"], 
+    height=500,
+    width=800
+    )
+
+    return (fig1)
+
+
+
+app.run_server(mode="external")  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
